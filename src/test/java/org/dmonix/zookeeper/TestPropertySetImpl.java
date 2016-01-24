@@ -48,4 +48,15 @@ public class TestPropertySetImpl extends BaseAssert implements OptionAssert {
 		assertSome("new-value", propertySet.set("new-key", "overwritten-value"));
 		assertSome("overwritten-value", propertySet.property("new-key"));
 	}
+	
+	@Test
+	public void properties_empty() {
+		assertTrue(propertySet.properties().isEmpty());
+	}
+
+	@Test
+	public void properties_nonEmpty() {
+		set_nonExisting();
+		assertEquals(1, propertySet.properties().size());
+	}
 }

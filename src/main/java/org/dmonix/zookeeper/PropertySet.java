@@ -15,6 +15,8 @@
  */
 package org.dmonix.zookeeper;
 
+import java.util.Set;
+
 import javascalautils.Option;
 import javascalautils.Try;
 import javascalautils.Unit;
@@ -37,9 +39,24 @@ interface PropertySet {
 	 * Get the named property.
 	 * @param name The name of the property
 	 * @return If exists then Some containing the value, else None.
+	 * @since 1.0
 	 */
 	Option<String> property(String name);
 	
+	/**
+	 * List the names of all properties
+	 * @return The names, empty if no properties
+	 * @since 1.0
+	 */
+	Set<String> properties();
+	
+	/**
+	 * Sets a property in the set
+	 * @param name The name of the property
+	 * @param value The value of the property
+	 * @return The Some with previous value if such existed else None
+	 * @since 1.0
+	 */
 	Option<String> set(String name, String value);
 	
 	Try<Unit> store();

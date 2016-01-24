@@ -15,13 +15,16 @@
  */
 package org.dmonix.zookeeper;
 
+import static javascalautils.OptionCompanion.Option;
+
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import javascalautils.Option;
 import javascalautils.Try;
 import javascalautils.Unit;
-import static javascalautils.OptionCompanion.Option;
 /**
  * @author Peter Nerg
  *
@@ -51,6 +54,14 @@ final class PropertySetImpl implements PropertySet {
 		return Option(properties.get(name));
 	}
 
+	/* (non-Javadoc)
+	 * @see org.dmonix.zookeeper.PropertySet#properties()
+	 */
+	@Override
+	public Set<String> properties() {
+		return new HashSet<>(properties.keySet());
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.dmonix.zookeeper.PropertySet#set(java.lang.String, java.lang.String)
 	 */
