@@ -25,13 +25,18 @@ import javascalautils.Unit;
  */
 final class PropertySetImpl implements PropertySet {
 
+	private final String name;
+
+	PropertySetImpl(String name) {
+		this.name = name;
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.dmonix.zookeeper.PropertySet#name()
 	 */
 	@Override
 	public String name() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException();
+		return name;
 	}
 
 	/* (non-Javadoc)

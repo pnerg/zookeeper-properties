@@ -15,32 +15,21 @@
  */
 package org.dmonix.zookeeper;
 
-import javascalautils.Option;
-import javascalautils.Try;
-import javascalautils.Unit;
+import org.junit.Test;
+
+import junitextensions.OptionAssert;
 
 /**
- * Represents a single property (key/value) set.
+ * Test the class {@link PropertySetImpl}
  * @author Peter Nerg
- * @since 1.0
  */
-interface PropertySet {
-
-	/**
-	 * Get the name of the property set
-	 * @return The name
-	 * @since 1.0
-	 */
-	String name();
-
-	/**
-	 * Get the named property.
-	 * @param name The name of the property
-	 * @return If exists then Some containing the value, else None.
-	 */
-	Option<String> property(String name);
+public class TestPropertySetImpl extends BaseAssert implements OptionAssert {
+	private final PropertySetImpl propertySet = new PropertySetImpl(TestPropertySetImpl.class.getName());
 	
-	Option<String> set(String name, String value);
+	@Test
+	public void name() {
+		assertEquals(TestPropertySetImpl.class.getName(), propertySet.name());
+	}
 	
-	Try<Unit> store();
+	
 }
