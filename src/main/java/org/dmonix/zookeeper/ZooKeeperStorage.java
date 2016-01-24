@@ -83,7 +83,7 @@ class ZooKeeperStorage implements PropertiesStorage {
 				return None();
 			}
 			
-			PropertySetImpl propertySet = new PropertySetImpl(name);
+			PropertySet propertySet = PropertySet.apply(name);
 			//orNull will never happen as we know the Option to be Some(...)
 			for(String child : children.orNull()) {
 				zk.getData(propertySetPath(name)+"/"+child, null, null);
@@ -165,7 +165,7 @@ class ZooKeeperStorage implements PropertiesStorage {
 			Option<List<String>> children = children(zk, path);
 			//attempt to delete all children recursively
 			for(String child : children.getOrElse(Collections::emptyList)) {
-				zk.delete(path, -1); //-1 for any version
+				zk.delete(path+"/"+child, -1); //-1 for any version
 			}
 			zk.delete(path, -1); //-1 for any version
 		});

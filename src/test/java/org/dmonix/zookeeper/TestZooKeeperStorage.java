@@ -27,6 +27,7 @@ import org.junit.Test;
 import javascalautils.Option;
 import javascalautils.Try;
 import junitextensions.OptionAssert;
+import zookeeperjunit.CloseableZooKeeper;
 import zookeeperjunit.ZKFactory;
 import zookeeperjunit.ZKInstance;
 import zookeeperjunit.ZooKeeperAssert;
@@ -75,12 +76,36 @@ public class TestZooKeeperStorage extends BaseAssert implements ZooKeeperAssert,
 	
 	@Test
 	public void storePropertySet() {
+		String propertyPath = rootPath+"/storePropertySet";
 		PropertySet set = PropertySet.apply("storePropertySet");
 		set.set("host", "localhost");
 		set.set("port", "6969");
 		
 		assertSuccess(storage.storePropertySet(set));
-		assertExists(rootPath+"/storePropertySet");
+
+		//assert the paths exist as expected
+		try(CloseableZooKeeper zk = connection()) {
+			assertSuccess(true, zk.exists(propertyPath));
+			assertSuccess(true, zk.exists(propertyPath+"/host"));
+			assertSuccess(true, zk.exists(propertyPath+"/port"));
+		}
 	}
 	
+	@Test
+	public void storePropertyPath_overwrite() {
+		String propertyPath = rootPath+"/storePropertySet";
+		storePropertySet();
+		
+		PropertySet set = PropertySet.apply("storePropertySet");
+		set.set("host", "localhost");
+		
+		assertSuccess(storage.storePropertySet(set));
+
+		//assert the paths exist as expected
+		try(CloseableZooKeeper zk = connection()) {
+			assertSuccess(true, zk.exists(propertyPath));
+			assertSuccess(true, zk.exists(propertyPath+"/host"));
+			assertSuccess(false, zk.exists(propertyPath+"/port")); //there shall be no port node anymore
+		}
+	}
 }
