@@ -73,4 +73,14 @@ public class TestZooKeeperStorage extends BaseAssert implements ZooKeeperAssert,
 		assertNone(propertySet.orNull()); //orNull will never happen, just to avoid exception mgmt
 	}
 	
+	@Test
+	public void storePropertySet() {
+		PropertySet set = PropertySet.apply("storePropertySet");
+		set.set("host", "localhost");
+		set.set("port", "6969");
+		
+		assertSuccess(storage.storePropertySet(set));
+		assertExists(rootPath+"/storePropertySet");
+	}
+	
 }

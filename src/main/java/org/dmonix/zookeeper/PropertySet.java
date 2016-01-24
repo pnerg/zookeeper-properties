@@ -60,4 +60,14 @@ interface PropertySet {
 	Option<String> set(String name, String value);
 	
 	Try<Unit> store();
+	
+	/**
+	 * 
+	 * @param name
+	 * @return
+	 * @since 1.0
+	 */
+	static PropertySet apply(String name) {
+		return new PropertySetImpl(name);
+	}
 }

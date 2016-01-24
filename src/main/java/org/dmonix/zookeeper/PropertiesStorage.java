@@ -17,13 +17,15 @@ package org.dmonix.zookeeper;
 
 import javascalautils.Option;
 import javascalautils.Try;
+import javascalautils.Unit;
 
 /**
  * @author Peter Nerg
- *
+ * @since 1.0
  */
 public interface PropertiesStorage {
 
 	Try<Option<PropertySet>> getPropertySet(String name);
 	
+	Try<Unit> storePropertySet(PropertySet propertySet);
 }
