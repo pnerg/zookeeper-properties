@@ -15,6 +15,10 @@
  */
 package org.dmonix.zookeeper;
 
+import javascalautils.Try;
+
+import static javascalautils.TryCompanion.Try;
+
 /**
  * @author Peter Nerg
  *
@@ -23,16 +27,20 @@ public class ZooKeeperStorageFactory {
 
 	private String connectString;
 	private String rootPath = "/etc/property-sets";
-	
+
 	private ZooKeeperStorageFactory(String connectString) {
 		this.connectString = connectString;
 	}
-	
+
 	public static ZooKeeperStorageFactory apply(String connectString) {
 		return new ZooKeeperStorageFactory(connectString);
 	}
-	
-	public PropertiesStorage create() {
-		return new ZooKeeperStorage(connectString, rootPath);
+
+	public Try<PropertiesStorage> create() {
+		return Try(() -> {
+			ZooKeeperStorage storage = new ZooKeeperStorage(connectString, rootPath);
+			storage.connect();
+			return storage;
+		});
 	}
 }
