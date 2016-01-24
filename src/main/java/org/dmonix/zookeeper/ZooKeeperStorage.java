@@ -16,12 +16,16 @@
 package org.dmonix.zookeeper;
 
 import static javascalautils.OptionCompanion.None;
-import static javascalautils.OptionCompanion.Some;
+import static javascalautils.OptionCompanion.Option;
+import static javascalautils.TryCompanion.Try;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.zookeeper.KeeperException;
+import org.apache.zookeeper.KeeperException.NoNodeException;
 import org.apache.zookeeper.Watcher.Event.KeeperState;
 import org.apache.zookeeper.ZooKeeper;
 
@@ -37,7 +41,7 @@ class ZooKeeperStorage implements PropertiesStorage {
 	private String connectString;
 	private String rootPath;
 	private Option<ZooKeeper> zooKeeper = None();
-	
+
 	/**
 	 * @param connectString
 	 * @param rootPath
@@ -54,19 +58,48 @@ class ZooKeeperStorage implements PropertiesStorage {
 				latch.countDown();
 			}
 		});
-		if(!latch.await(10, TimeUnit.SECONDS)) {
+		if (!latch.await(10, TimeUnit.SECONDS)) {
 			throw new IOException("Failed to connect to ZooKeeper");
 		}
-		zooKeeper = Some(zk);
+		zooKeeper = Option(zk);
 	}
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.dmonix.zookeeper.PropertiesStorage#getPropertySet(java.lang.String)
 	 */
 	@Override
 	public Try<Option<PropertySet>> getPropertySet(String name) {
-		// TODO Auto-generated method stub
-		return null;
+		return Try(() -> {
+			ZooKeeper zk = zooKeeper.get();
+			Option<List<String>> children = children(zk, propertySetPath(name));
+			//not so functional but as match/case constructs don't exist in Java this will have to do..:(
+			if(children.isEmpty()) {
+				return None();
+			}
+			
+			PropertySetImpl propertySet = new PropertySetImpl(name);
+			//orNull will never happen as we know the Option to be Some(...)
+			for(String child : children.orNull()) {
+				zk.getData(propertySetPath(name)+"/"+child, null, null);
+			}
+			
+			return Option(propertySet);
+		});
+	}
+
+	private String propertySetPath(String name) {
+		return rootPath + "/" + name;
+	}
+
+	
+	private Option<List<String>> children(ZooKeeper zk, String path) throws KeeperException, InterruptedException {
+		try {
+			return Option(zk.getChildren(path, null));
+		} catch (NoNodeException ex) {
+			return None();
+		}
 	}
 
 }
