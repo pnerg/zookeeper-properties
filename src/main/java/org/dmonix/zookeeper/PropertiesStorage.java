@@ -15,6 +15,9 @@
  */
 package org.dmonix.zookeeper;
 
+import java.io.Closeable;
+import java.util.List;
+
 import javascalautils.Option;
 import javascalautils.Try;
 import javascalautils.Unit;
@@ -23,9 +26,12 @@ import javascalautils.Unit;
  * @author Peter Nerg
  * @since 1.0
  */
-public interface PropertiesStorage {
+public interface PropertiesStorage extends Closeable {
 
 	Try<Option<PropertySet>> getPropertySet(String name);
 	
 	Try<Unit> storePropertySet(PropertySet propertySet);
+	
+	Try<List<String>> propertySets();
+
 }

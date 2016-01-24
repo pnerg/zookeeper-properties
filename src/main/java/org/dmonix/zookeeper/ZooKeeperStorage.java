@@ -86,7 +86,7 @@ class ZooKeeperStorage implements PropertiesStorage {
 			PropertySet propertySet = PropertySet.apply(name);
 			//orNull will never happen as we know the Option to be Some(...)
 			for(String child : children.orNull()) {
-				//get data may return null, hence the Option
+				//getData may return null, hence the Option
 				Option(zk.getData(propertySetPath(name)+"/"+child, null, null)).map(data -> new String(data)).forEach(value -> {
 					propertySet.set(child, value);
 				}); 
@@ -110,6 +110,31 @@ class ZooKeeperStorage implements PropertiesStorage {
 				createRecursive(zk, path+"/"+prop, propertySet.property(prop).get().getBytes());
 			}
 		});
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.dmonix.zookeeper.PropertiesStorage#propertySets()
+	 */
+	@Override
+	public Try<List<String>> propertySets() {
+		return Try(() -> children(zooKeeper.get(), rootPath).getOrElse(Collections::emptyList));
+	}
+
+	/**
+	 * Closes any open ZooKeeper connection
+	 */
+	@Override
+	public void close() {
+		zooKeeper.forEach(zk -> Try(() ->zk.close()));
+	}
+
+	/**
+	 * Overridden to make sure we close the ZooKeeper connection held by this instance. 
+	 */
+	@Override
+	protected void finalize() throws Throwable {
+		close();
+		super.finalize();
 	}
 	
 	private String propertySetPath(String name) {

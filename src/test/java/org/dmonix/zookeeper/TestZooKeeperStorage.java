@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -59,6 +60,11 @@ public class TestZooKeeperStorage extends BaseAssert implements ZooKeeperAssert,
 	@Before
 	public void before() throws IOException, InterruptedException {
 		storage.connect();
+	}
+	
+	@After
+	public void after() {
+		storage.close();
 	}
 	
 	/* (non-Javadoc)
@@ -124,4 +130,8 @@ public class TestZooKeeperStorage extends BaseAssert implements ZooKeeperAssert,
 		}
 	}
 	
+	@Test
+	public void finalize_t() throws Throwable {
+		storage.finalize();
+	}
 }
