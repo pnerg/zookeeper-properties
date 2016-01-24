@@ -15,10 +15,13 @@
  */
 package org.dmonix.zookeeper;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javascalautils.Option;
 import javascalautils.Try;
 import javascalautils.Unit;
-
+import static javascalautils.OptionCompanion.Option;
 /**
  * @author Peter Nerg
  *
@@ -26,7 +29,8 @@ import javascalautils.Unit;
 final class PropertySetImpl implements PropertySet {
 
 	private final String name;
-
+	private final Map<String, String> properties = new HashMap<>();
+	
 	PropertySetImpl(String name) {
 		this.name = name;
 	}
@@ -44,8 +48,7 @@ final class PropertySetImpl implements PropertySet {
 	 */
 	@Override
 	public Option<String> property(String name) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException();
+		return Option(properties.get(name));
 	}
 
 	/* (non-Javadoc)
@@ -53,8 +56,7 @@ final class PropertySetImpl implements PropertySet {
 	 */
 	@Override
 	public Option<String> set(String name, String value) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException();
+		return Option(properties.put(name, value));
 	}
 	
 	/* (non-Javadoc)
