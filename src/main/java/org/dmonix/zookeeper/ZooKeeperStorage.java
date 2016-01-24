@@ -86,7 +86,10 @@ class ZooKeeperStorage implements PropertiesStorage {
 			PropertySet propertySet = PropertySet.apply(name);
 			//orNull will never happen as we know the Option to be Some(...)
 			for(String child : children.orNull()) {
-				zk.getData(propertySetPath(name)+"/"+child, null, null);
+				//get data may return null, hence the Option
+				Option(zk.getData(propertySetPath(name)+"/"+child, null, null)).map(data -> new String(data)).forEach(value -> {
+					propertySet.set(child, value);
+				}); 
 			}
 			
 			return Option(propertySet);

@@ -41,6 +41,8 @@ public class TestZooKeeperStorage extends BaseAssert implements ZooKeeperAssert,
 	
 	private final AtomicLong counter = new AtomicLong(1);
 	private final String rootPath = "/TestZooKeeperStorage-"+counter.getAndIncrement();
+	private final String propertySetName = "test-set";
+	private final String propertySetPath = rootPath+"/"+propertySetName;
 	
 	private final ZooKeeperStorage storage = new ZooKeeperStorage(instance.connectString().get(), rootPath);
 	
@@ -75,9 +77,23 @@ public class TestZooKeeperStorage extends BaseAssert implements ZooKeeperAssert,
 	}
 	
 	@Test
+	public void getPropertySet() {
+		storePropertySet();
+		
+		Try<Option<PropertySet>> propertySet = storage.getPropertySet(propertySetName);
+		assertSuccess(propertySet);
+		assertSome(propertySet.orNull()); //orNull will never happen, just to avoid exception mgmt
+		PropertySet set = propertySet.orNull().orNull(); ////orNull will never happen, just to avoid exception mgmt
+		
+		//assert we got the properties stored in "storePropertySet"
+		assertEquals(2, set.properties().size());
+		assertSome("localhost", set.property("host"));
+		assertSome("6969", set.property("port"));
+	}
+	
+	@Test
 	public void storePropertySet() {
-		String propertyPath = rootPath+"/storePropertySet";
-		PropertySet set = PropertySet.apply("storePropertySet");
+		PropertySet set = PropertySet.apply(propertySetName);
 		set.set("host", "localhost");
 		set.set("port", "6969");
 		
@@ -85,27 +101,27 @@ public class TestZooKeeperStorage extends BaseAssert implements ZooKeeperAssert,
 
 		//assert the paths exist as expected
 		try(CloseableZooKeeper zk = connection()) {
-			assertSuccess(true, zk.exists(propertyPath));
-			assertSuccess(true, zk.exists(propertyPath+"/host"));
-			assertSuccess(true, zk.exists(propertyPath+"/port"));
+			assertSuccess(true, zk.exists(propertySetPath));
+			assertSuccess(true, zk.exists(propertySetPath+"/host"));
+			assertSuccess(true, zk.exists(propertySetPath+"/port"));
 		}
 	}
 	
 	@Test
 	public void storePropertyPath_overwrite() {
-		String propertyPath = rootPath+"/storePropertySet";
 		storePropertySet();
 		
-		PropertySet set = PropertySet.apply("storePropertySet");
+		PropertySet set = PropertySet.apply(propertySetName);
 		set.set("host", "localhost");
 		
 		assertSuccess(storage.storePropertySet(set));
 
 		//assert the paths exist as expected
 		try(CloseableZooKeeper zk = connection()) {
-			assertSuccess(true, zk.exists(propertyPath));
-			assertSuccess(true, zk.exists(propertyPath+"/host"));
-			assertSuccess(false, zk.exists(propertyPath+"/port")); //there shall be no port node anymore
+			assertSuccess(true, zk.exists(propertySetPath));
+			assertSuccess(true, zk.exists(propertySetPath+"/host"));
+			assertSuccess(false, zk.exists(propertySetPath+"/port")); //there shall be no port node anymore
 		}
 	}
+	
 }
