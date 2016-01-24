@@ -17,8 +17,11 @@ package org.dmonix.zookeeper;
 
 import java.time.Duration;
 import java.util.Locale;
+import java.util.stream.Stream;
 
 import org.junit.Assert;
+
+import javascalautils.Try;
 
 /**
  * Base test class.
@@ -37,4 +40,15 @@ public class BaseAssert extends Assert {
         System.setProperty("user.variant", Locale.US.getVariant());
     }
 
+    private static Try<Integer> divide(int x, int y) {
+    	return Try.apply(() -> x/y);
+    }
+    
+    public static void main(String[] args) {
+//		Stream<Try<Integer>> stream = Stream.of(divide(10,5), divide(10,2), divide(10,0));
+		Stream<Try<Integer>> stream = Stream.of(divide(10,5), divide(10,2), divide(10,1));
+		Try<Integer> reduce = stream.reduce(Try.apply(0), (t1, t2) -> t1.flatMap(v -> t2));
+		System.out.println(reduce);
+	}
+    
 }

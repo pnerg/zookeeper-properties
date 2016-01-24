@@ -17,15 +17,19 @@ package org.dmonix.zookeeper;
 
 import static javascalautils.OptionCompanion.None;
 import static javascalautils.OptionCompanion.Option;
+import static javascalautils.OptionCompanion.Some;
 import static javascalautils.TryCompanion.Try;
+import static javascalautils.TryCompanion.Success;
 import static org.apache.zookeeper.CreateMode.PERSISTENT;
 import static org.apache.zookeeper.ZooDefs.Ids.OPEN_ACL_UNSAFE;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.KeeperException.NoNodeException;
@@ -74,129 +78,132 @@ class ZooKeeperStorage implements PropertiesStorage {
 	 * @see org.dmonix.zookeeper.PropertiesStorage#getPropertySet(java.lang.String)
 	 */
 	@Override
-	public Try<Option<PropertySet>> getPropertySet(String name) {
+	public Try<Option<PropertySet>> get(String name) {
 		return Try(() -> {
 			ZooKeeper zk = zooKeeper.get();
-			Option<List<String>> children = children(zk, propertySetPath(name));
-			//not so functional but as match/case constructs don't exist in Java this will have to do..:(
-			if(children.isEmpty()) {
-				return None();
-			}
-			
+			Try<List<String>> children = ZooKeeperUtil.children(zk, propertySetPath(name));
+//			children.failed().filter
+//			// not so functional but as match/case constructs don't exist in Java this will have to do..:(
+//			if (children.isEmpty()) {
+//				return None();
+//			}
+
 			PropertySet propertySet = PropertySet.apply(name);
-			//orNull will never happen as we know the Option to be Some(...)
-			for(String child : children.orNull()) {
-				//getData may return null, hence the Option
-				Option(zk.getData(propertySetPath(name)+"/"+child, null, null)).map(data -> new String(data)).forEach(value -> {
+			// orNull will never happen as we know the Option to be Some(...)
+			for (String child : children.orNull()) {
+				// getData may return null, hence the Option
+				Option(zk.getData(propertySetPath(name) + "/" + child, null, null)).map(data -> new String(data)).forEach(value -> {
 					propertySet.set(child, value);
-				}); 
+				});
 			}
-			
+
 			return Option(propertySet);
 		});
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.dmonix.zookeeper.PropertiesStorage#storePropertySet(java.lang.String, org.dmonix.zookeeper.PropertySet)
 	 */
 	@Override
-	public Try<Unit> storePropertySet(PropertySet propertySet) {
-		return Try(() -> {
-			ZooKeeper zk = zooKeeper.get();
-			String path = propertySetPath(propertySet.name());
-			deletePropertySet(zk, path); //first delete the old property set
-			createRecursive(zk, path, new byte[0]); //recreate the property set znode
-			for(String prop : propertySet.properties()) { // write the propertues one by one
-				createRecursive(zk, path+"/"+prop, propertySet.property(prop).get().getBytes());
-			}
+	public Try<Unit> store(PropertySet propertySet) {
+		String path = propertySetPath(propertySet.name());
+		
+		// if that fails there's no point to continue with the rest of the operation, hence the flatMap
+		return delete(propertySet.name()).flatMap(u -> {
+			return Try(() -> {
+				ZooKeeper zk = zooKeeper.get();
+				ZooKeeperUtil.createRecursive(zk, path, new byte[0]); // recreate the property set znode
+				for (String prop : propertySet.properties()) { // write the properties one by one
+					ZooKeeperUtil.createRecursive(zk, path + "/" + prop, propertySet.property(prop).get().getBytes());
+				}
+			});
 		});
 	}
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.dmonix.zookeeper.PropertiesStorage#propertySets()
 	 */
 	@Override
 	public Try<List<String>> propertySets() {
-		return Try(() -> children(zooKeeper.get(), rootPath).getOrElse(Collections::emptyList));
+		return connection().flatMap(zk -> ZooKeeperUtil.children(zk, rootPath));
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.dmonix.zookeeper.PropertiesStorage#delete(java.lang.String)
+	 */
+	@Override
+	public Try<Unit> delete(String name) {
+		String path = propertySetPath(name);
+		return connection().flatMap(zk -> ZooKeeperUtil.deleteRecursive(zk, path));
+	}
+
+	private Try<ZooKeeper> connection() {
+		return Try(() -> zooKeeper.get());
+	}
+	
 	/**
 	 * Closes any open ZooKeeper connection
 	 */
 	@Override
 	public void close() {
-		zooKeeper.forEach(zk -> Try(() ->zk.close()));
+		zooKeeper.forEach(zk -> Try(() -> zk.close()));
 	}
 
 	/**
-	 * Overridden to make sure we close the ZooKeeper connection held by this instance. 
+	 * Overridden to make sure we close the ZooKeeper connection held by this instance.
 	 */
 	@Override
 	protected void finalize() throws Throwable {
 		close();
 		super.finalize();
 	}
-	
+
 	private String propertySetPath(String name) {
 		return rootPath + "/" + name;
 	}
 
-	
-	private static Option<List<String>> children(ZooKeeper zk, String path) throws KeeperException, InterruptedException {
-		try {
-			return Option(zk.getChildren(path, null));
-		} catch (NoNodeException ex) {
-			return None();
-		}
-	}
+//	private static Try<List<String>> children(ZooKeeper zk, String path) {
+//		return Try(() -> {
+//			return zk.getChildren(path, null);
+//		});
+//	}
+//
+//	private static boolean createRecursive(ZooKeeper zooKeeper, String path, byte[] data) throws KeeperException, InterruptedException {
+//		try {
+//			return createIfNotExist(zooKeeper, path, data);
+//		} catch (KeeperException.NoNodeException ex) {
+//			int pos = path.lastIndexOf("/");
+//			String parentPath = path.substring(0, pos);
+//			createRecursive(zooKeeper, parentPath, new byte[0]);
+//			return createIfNotExist(zooKeeper, path, data);
+//		}
+//	}
+//
+//	private static boolean createIfNotExist(ZooKeeper zooKeeper, String path, byte[] data) throws KeeperException, InterruptedException {
+//		boolean result = false;
+//		try {
+//			// check if the path exists before trying to create
+//			if (!exists(zooKeeper, path)) {
+//				zooKeeper.create(path, data, OPEN_ACL_UNSAFE, PERSISTENT);
+//				result = true;
+//			}
+//		}
+//		// this may still happen in a concurrent world some other process/thread may end up creating the path
+//		// after we did the exists(...) operation, so just in case we need to manage the exception
+//		catch (KeeperException.NodeExistsException ex) {
+//		}
+//
+//		return result;
+//	}
+//
+//	private static boolean exists(ZooKeeper zooKeeper, String path) throws KeeperException, InterruptedException {
+//		return zooKeeper.exists(path, null) != null;
+//	}
 
-	private static boolean createRecursive(ZooKeeper zooKeeper, String path, byte[] data) throws KeeperException, InterruptedException {
-		try {
-			return createIfNotExist(zooKeeper, path, data);
-		} catch (KeeperException.NoNodeException ex) {
-			int pos = path.lastIndexOf("/");
-			String parentPath = path.substring(0, pos);
-			createRecursive(zooKeeper, parentPath, new byte[0]);
-			return createIfNotExist(zooKeeper, path, data);
-		}
-	}
-	
-	private static boolean createIfNotExist(ZooKeeper zooKeeper, String path, byte[] data) throws KeeperException, InterruptedException {
-		boolean result = false;
-		try {
-			// check if the path exists before trying to create
-			if (!exists(zooKeeper, path)) {
-				zooKeeper.create(path, data, OPEN_ACL_UNSAFE, PERSISTENT);
-				result = true;
-			}
-		}
-		// this may still happen in a concurrent world some other process/thread may end up creating the path
-		// after we did the exists(...) operation, so just in case we need to manage the exception
-		catch (KeeperException.NodeExistsException ex) {
-		}
-
-		return result;
-	}
-	
-	private static boolean exists(ZooKeeper zooKeeper, String path) throws KeeperException, InterruptedException {
-		return zooKeeper.exists(path, null) != null;
-	}
-	
-	/**
-	 * Deletes a property set
-	 * @param path
-	 *            The path to the property set
-	 * @return The result of the operation
-	 */
-	private static Try<Unit> deletePropertySet(ZooKeeper zk, String path) {
-		return Try(() -> {
-			Option<List<String>> children = children(zk, path);
-			//attempt to delete all children recursively
-			for(String child : children.getOrElse(Collections::emptyList)) {
-				zk.delete(path+"/"+child, -1); //-1 for any version
-			}
-			zk.delete(path, -1); //-1 for any version
-		});
-		
-	}
 }
