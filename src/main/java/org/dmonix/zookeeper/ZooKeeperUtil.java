@@ -38,7 +38,8 @@ import javascalautils.Unit;
 final class ZooKeeperUtil {
 
 	/**
-	 * Deletes a single path
+	 * Recursively deletes a path. <br>
+	 * The method will recursively list and delete all child nodes to the provided path. Will fail if ZK is down.
 	 * 
 	 * @param zooKeeper
 	 *            The ZooKeeper connection
@@ -48,53 +49,9 @@ final class ZooKeeperUtil {
 	 * @since 1.0
 	 */
 	static Try<Unit> deleteRecursive(ZooKeeper zooKeeper, String path) {
-		// return Try(() -> {
-		// List<String> children = children(zooKeeper, path).getOrElse(Collections::emptyList);
-		// children.add(path);
-		// return children.stream();
-		// }).flatMap(stream -> {
-		// return stream.map(child -> delete(zooKeeper, child)).reduce(Try.apply(Unit.Instance), (t1, t2) -> t1.flatMap(v -> t2));
-		// });
-
-		return Try(() -> {
-			List<String> children = children(zooKeeper, path).getOrElse(Collections::emptyList);
-			children.add(path);
-			return children.stream();
-		}).flatMap(stream -> stream.map(child -> delete(zooKeeper, child)).reduce(Try.apply(Unit.Instance), (t1, t2) -> t1.flatMap(v -> t2)));
-
-		//
-		// Try(() -> {
-		// List<String> children = children(zooKeeper, path).getOrElse(Collections::emptyList);
-		// children.add(path);
-		//
-		// children.stream().map(child -> delete(zooKeeper, child)).reduce(Try.apply(Unit.Instance), (t1,t2) -> t1.flatMap(v -> t2));
-		//
-		//
-		// children(zooKeeper, path).flatMap(children -> {
-		// return Try(() -> {
-		// // attempt to delete all children recursively
-		// for (String child : children) {
-		// zk.delete(path + "/" + child, -1); // -1 for any version
-		// }
-		// zk.delete(path, -1); // -1 for any version
-		// });
-		// });
-		// });
-		//
-		//
-		// return Try(() -> {
-		// // List<String> children = children(zk, path).getOrElse(Collections::emptyList);
-		// children(zooKeeper, path).flatMap(children -> {
-		// return Try(() -> {
-		// // attempt to delete all children recursively
-		// for (String child : children) {
-		// String joinedZNode = path.equals("/") ? path + child : path + "/" + child;
-		// deleteRecursive(zooKeeper, joinedZNode);
-		// }
-		// zooKeeper.delete(path, -1); // -1 for any version
-		// });
-		// });
-		// });
+		return Try(() -> children(zooKeeper, path).getOrElse(Collections::emptyList).stream())
+				.flatMap(stream -> stream.map(child -> deleteRecursive(zooKeeper, path + "/" + child)).reduce(Try.apply(Unit.Instance), (t1, t2) -> t1.flatMap(v -> t2)))
+				.flatMap(t -> delete(zooKeeper, path));
 	}
 
 	/**
@@ -118,10 +75,34 @@ final class ZooKeeperUtil {
 		});
 	}
 
+	/**
+	 * Attempt to get the children to the provided path. Will fail if ZK is down or no such path exists.
+	 * 
+	 * @param zooKeeper
+	 *            The ZooKeeper connection
+	 * @param path
+	 *            The path
+	 * @return The result of the operation
+	 * @since 1.0
+	 */
 	static Try<List<String>> children(ZooKeeper zooKeeper, String path) {
 		return Try(() -> zooKeeper.getChildren(path, null));
 	}
 
+	/**
+	 * Attempts to recursively create the path adding any nodes that are missing
+	 * 
+	 * @param zooKeeper
+	 *            The ZooKeeper connection
+	 * @param path
+	 *            The path
+	 * @param data
+	 *            Any data to set on the last/leaf node
+	 * @return The result of the operation
+	 * @throws KeeperException
+	 * @throws InterruptedException
+	 * @since 1.0
+	 */
 	static boolean createRecursive(ZooKeeper zooKeeper, String path, byte[] data) throws KeeperException, InterruptedException {
 		try {
 			return createIfNotExist(zooKeeper, path, data);
@@ -133,6 +114,19 @@ final class ZooKeeperUtil {
 		}
 	}
 
+	/**
+	 * Attempts to create the provided node it doesn't already exists.
+	 * 
+	 * @param zooKeeper
+	 *            The ZooKeeper connection
+	 * @param path
+	 *            The path
+	 * @param data
+	 *            Any data to set on the last/leaf node
+	 * @return The result of the operation
+	 * @throws KeeperException
+	 * @throws InterruptedException
+	 */
 	static boolean createIfNotExist(ZooKeeper zooKeeper, String path, byte[] data) throws KeeperException, InterruptedException {
 		boolean result = false;
 		try {
@@ -150,6 +144,16 @@ final class ZooKeeperUtil {
 		return result;
 	}
 
+	/**
+	 * Returns if the provided path/node exists.
+	 * @param zooKeeper
+	 *            The ZooKeeper connection
+	 * @param path
+	 *            The path
+	 * @return The result of the operation
+	 * @throws KeeperException
+	 * @throws InterruptedException
+	 */
 	static boolean exists(ZooKeeper zooKeeper, String path) throws KeeperException, InterruptedException {
 		return zooKeeper.exists(path, null) != null;
 	}
