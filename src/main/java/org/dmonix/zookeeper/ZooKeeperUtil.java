@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.zookeeper.KeeperException;
+import org.apache.zookeeper.KeeperException.NoNodeException;
 import org.apache.zookeeper.ZooKeeper;
 
 import javascalautils.Try;
@@ -47,14 +48,14 @@ final class ZooKeeperUtil {
 	 * @since 1.0
 	 */
 	static Try<Unit> deleteRecursive(ZooKeeper zooKeeper, String path) {
-//		return Try(() -> {
-//			List<String> children = children(zooKeeper, path).getOrElse(Collections::emptyList);
-//			children.add(path);
-//			return children.stream();
-//		}).flatMap(stream -> {
-//			return stream.map(child -> delete(zooKeeper, child)).reduce(Try.apply(Unit.Instance), (t1, t2) -> t1.flatMap(v -> t2));
-//		});
-		
+		// return Try(() -> {
+		// List<String> children = children(zooKeeper, path).getOrElse(Collections::emptyList);
+		// children.add(path);
+		// return children.stream();
+		// }).flatMap(stream -> {
+		// return stream.map(child -> delete(zooKeeper, child)).reduce(Try.apply(Unit.Instance), (t1, t2) -> t1.flatMap(v -> t2));
+		// });
+
 		return Try(() -> {
 			List<String> children = children(zooKeeper, path).getOrElse(Collections::emptyList);
 			children.add(path);
@@ -98,7 +99,7 @@ final class ZooKeeperUtil {
 
 	/**
 	 * Attempts to delete the provided path. <br>
-	 * Will fail if the node/path does not exist or ZK is down.
+	 * Will fail if ZK is down.
 	 * 
 	 * @param zooKeeper
 	 *            The ZooKeeper connection
@@ -108,7 +109,13 @@ final class ZooKeeperUtil {
 	 * @since 1.0
 	 */
 	static Try<Unit> delete(ZooKeeper zooKeeper, String path) {
-		return Try(() -> zooKeeper.delete(path, -1)); // -1 for ANY version
+		return Try(() -> {
+			try {
+				zooKeeper.delete(path, -1); // -1 for ANY version
+			} catch (NoNodeException ex) {
+				// ignored, deleting a non-existing node...is not a problem
+			}
+		});
 	}
 
 	static Try<List<String>> children(ZooKeeper zooKeeper, String path) {
