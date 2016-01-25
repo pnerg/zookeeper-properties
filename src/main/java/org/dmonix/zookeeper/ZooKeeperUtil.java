@@ -15,6 +15,7 @@
  */
 package org.dmonix.zookeeper;
 
+import static javascalautils.OptionCompanion.Option;
 import static javascalautils.TryCompanion.Try;
 import static javascalautils.TryCompanion.Success;
 import static org.apache.zookeeper.CreateMode.PERSISTENT;
@@ -50,10 +51,8 @@ final class ZooKeeperUtil {
 	 * @since 1.0
 	 */
 	static Try<Unit> deleteRecursive(ZooKeeper zooKeeper, String path) {
-		return children(zooKeeper, path).getOrElse(Collections::emptyList).stream()
-				.map(child -> deleteRecursive(zooKeeper, path + "/" + child)).
-						reduce(Success(Unit.Instance), (t1, t2) -> t1.flatMap(v -> t2))
-						.flatMap(t -> delete(zooKeeper, path));
+		return children(zooKeeper, path).getOrElse(Collections::emptyList).stream().map(child -> deleteRecursive(zooKeeper, path + "/" + child))
+				.reduce(Success(Unit.Instance), (t1, t2) -> t1.flatMap(v -> t2)).flatMap(t -> delete(zooKeeper, path));
 	}
 
 	/**
@@ -78,7 +77,8 @@ final class ZooKeeperUtil {
 	}
 
 	/**
-	 * Attempt to get the children to the provided path. Will fail if ZK is down or no such path exists.
+	 * Attempt to get the children to the provided path. <br>
+	 * Will fail if ZK is down. Non existing path is treated by returning an empty list
 	 * 
 	 * @param zooKeeper
 	 *            The ZooKeeper connection
@@ -128,6 +128,7 @@ final class ZooKeeperUtil {
 	 * @return The result of the operation
 	 * @throws KeeperException
 	 * @throws InterruptedException
+	 * @since 1.0
 	 */
 	static boolean createIfNotExist(ZooKeeper zooKeeper, String path, byte[] data) throws KeeperException, InterruptedException {
 		boolean result = false;
@@ -147,7 +148,24 @@ final class ZooKeeperUtil {
 	}
 
 	/**
+	 * Attempts to get the byte data from the provided path
+	 * 
+	 * @param zooKeeper
+	 *            The ZooKeeper connection
+	 * @param path
+	 *            The path
+	 * @return The result of the operation
+	 * @throws InterruptedException
+	 * @throws KeeperException
+	 * @since 1.0
+	 */
+	static String getData(ZooKeeper zooKeeper, String path) throws KeeperException, InterruptedException {
+		return Option(zooKeeper.getData(path, null, null)).map(bytes -> new String(bytes)).orNull();
+	}
+
+	/**
 	 * Returns if the provided path/node exists.
+	 * 
 	 * @param zooKeeper
 	 *            The ZooKeeper connection
 	 * @param path
@@ -155,6 +173,7 @@ final class ZooKeeperUtil {
 	 * @return The result of the operation
 	 * @throws KeeperException
 	 * @throws InterruptedException
+	 * @since 1.0
 	 */
 	static boolean exists(ZooKeeper zooKeeper, String path) throws KeeperException, InterruptedException {
 		return zooKeeper.exists(path, null) != null;

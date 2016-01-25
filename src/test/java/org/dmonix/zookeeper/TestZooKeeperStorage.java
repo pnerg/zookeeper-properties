@@ -38,7 +38,6 @@ import zookeeperjunit.ZooKeeperAssert;
  * @author Peter Nerg
  *
  */
-@Ignore("Needs refactoring")
 public class TestZooKeeperStorage extends BaseAssert implements ZooKeeperAssert, OptionAssert {
 	private static ZKInstance instance = ZKFactory.apply().create();
 	
@@ -77,6 +76,7 @@ public class TestZooKeeperStorage extends BaseAssert implements ZooKeeperAssert,
 		return instance;
 	}
 
+	@Ignore("not fully implemented")
 	@Test
 	public void getPropertySet_nonSuchSet() {
 		Try<Option<PropertySet>> propertySet = storage.get("no-such-set");
@@ -84,6 +84,7 @@ public class TestZooKeeperStorage extends BaseAssert implements ZooKeeperAssert,
 		assertNone(propertySet.orNull()); //orNull will never happen, just to avoid exception mgmt
 	}
 	
+	@Ignore("not fully implemented")
 	@Test
 	public void getPropertySet() {
 		storePropertySet();
