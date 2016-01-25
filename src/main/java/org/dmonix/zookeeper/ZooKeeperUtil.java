@@ -16,6 +16,7 @@
 package org.dmonix.zookeeper;
 
 import static javascalautils.TryCompanion.Try;
+import static javascalautils.TryCompanion.Success;
 import static org.apache.zookeeper.CreateMode.PERSISTENT;
 import static org.apache.zookeeper.ZooDefs.Ids.OPEN_ACL_UNSAFE;
 
@@ -49,9 +50,10 @@ final class ZooKeeperUtil {
 	 * @since 1.0
 	 */
 	static Try<Unit> deleteRecursive(ZooKeeper zooKeeper, String path) {
-		return Try(() -> children(zooKeeper, path).getOrElse(Collections::emptyList).stream())
-				.flatMap(stream -> stream.map(child -> deleteRecursive(zooKeeper, path + "/" + child)).reduce(Try.apply(Unit.Instance), (t1, t2) -> t1.flatMap(v -> t2)))
-				.flatMap(t -> delete(zooKeeper, path));
+		return children(zooKeeper, path).getOrElse(Collections::emptyList).stream()
+				.map(child -> deleteRecursive(zooKeeper, path + "/" + child)).
+						reduce(Success(Unit.Instance), (t1, t2) -> t1.flatMap(v -> t2))
+						.flatMap(t -> delete(zooKeeper, path));
 	}
 
 	/**
