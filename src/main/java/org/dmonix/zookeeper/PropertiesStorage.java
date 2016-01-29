@@ -71,6 +71,5 @@ public interface PropertiesStorage extends Closeable {
 	 * @since 1.0
 	 */
 	Try<List<String>> propertySets();
-
 	
 }

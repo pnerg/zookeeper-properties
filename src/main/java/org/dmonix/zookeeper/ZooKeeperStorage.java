@@ -37,13 +37,14 @@ import javascalautils.Try;
 import javascalautils.Unit;
 
 /**
+ * The implementation of the proeprties storage.
  * @author Peter Nerg
- *
+ * @since 1.0
  */
 class ZooKeeperStorage implements PropertiesStorage {
 
-	private String connectString;
-	private String rootPath;
+	private final String connectString;
+	private final String rootPath;
 	private Option<ZooKeeper> zooKeeper = None();
 
 	/**

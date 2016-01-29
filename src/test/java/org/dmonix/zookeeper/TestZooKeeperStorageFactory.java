@@ -26,7 +26,7 @@ import zookeeperjunit.ZKFactory;
 import zookeeperjunit.ZKInstance;
 
 /**
- * Test the class {@link ZooKeeperStorageFactory}
+ * Test the class {@link PropertiesStorageFactory}
  * @author Peter Nerg
  */
 public class TestZooKeeperStorageFactory extends BaseAssert implements TryAssert {
@@ -35,7 +35,7 @@ public class TestZooKeeperStorageFactory extends BaseAssert implements TryAssert
 //	private final AtomicLong counter = new AtomicLong(1);
 //	private final String rootPath = "/TestZooKeeperStorageFactory-"+counter.getAndIncrement();
 	
-	private final ZooKeeperStorageFactory factory = ZooKeeperStorageFactory.apply(instance.connectString().get());
+	private final PropertiesStorageFactory factory = PropertiesStorageFactory.apply(instance.connectString().get());
 	
 	@BeforeClass
 	public static void startZooKeeper() throws TimeoutException, Throwable {

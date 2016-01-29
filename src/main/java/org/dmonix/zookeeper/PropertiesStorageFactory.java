@@ -20,22 +20,34 @@ import javascalautils.Try;
 import static javascalautils.TryCompanion.Try;
 
 /**
+ * Factory for creating {@link PropertiesStorage} instances.
  * @author Peter Nerg
- *
+ * @since 1.0
  */
-public class ZooKeeperStorageFactory {
+public class PropertiesStorageFactory {
 
 	private String connectString;
 	private String rootPath = "/etc/property-sets";
 
-	private ZooKeeperStorageFactory(String connectString) {
+	private PropertiesStorageFactory(String connectString) {
 		this.connectString = connectString;
 	}
 
-	public static ZooKeeperStorageFactory apply(String connectString) {
-		return new ZooKeeperStorageFactory(connectString);
+	/**
+	 * Creates the factory instance.
+	 * @param connectString The connect string used to connect to ZooKeeper.
+	 * @return The factory instance
+	 * @since 1.0
+	 */
+	public static PropertiesStorageFactory apply(String connectString) {
+		return new PropertiesStorageFactory(connectString);
 	}
 
+	/**
+	 * Creates a properties storage instance.
+	 * @return The result of creating the instance
+	 * @since 1.0
+	 */
 	public Try<PropertiesStorage> create() {
 		return Try(() -> {
 			ZooKeeperStorage storage = new ZooKeeperStorage(connectString, rootPath);
