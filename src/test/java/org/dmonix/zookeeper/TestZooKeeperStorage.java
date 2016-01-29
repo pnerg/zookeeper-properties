@@ -16,6 +16,7 @@
 package org.dmonix.zookeeper;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -64,6 +65,7 @@ public class TestZooKeeperStorage extends BaseAssert implements ZooKeeperAssert,
 	
 	@After
 	public void after() {
+		storage.delete(propertySetName);
 		storage.close();
 	}
 	
@@ -142,9 +144,25 @@ public class TestZooKeeperStorage extends BaseAssert implements ZooKeeperAssert,
 		
 		//assert the paths exist as expected
 		try(CloseableZooKeeper zk = connection()) {
-			assertSuccess(false, zk.exists(propertySetPath+"/port"));
+			assertSuccess(false, zk.exists(propertySetPath));
 		}
 		
+	}
+	
+	@Test
+	public void propertySets_noSets() {
+		Try<List<String>> propertySets = storage.propertySets();
+		assertSuccess(propertySets);
+		assertTrue(propertySets.orNull().isEmpty());
+	}
+
+	@Test
+	public void propertySets() {
+		storePropertySet();
+		Try<List<String>> propertySets = storage.propertySets();
+		assertSuccess(propertySets);
+		assertEquals(1, propertySets.orNull().size());
+		assertTrue(propertySets.orNull().contains(propertySetName));
 	}
 	
 	@Test
