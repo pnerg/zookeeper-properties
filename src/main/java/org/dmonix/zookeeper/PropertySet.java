@@ -24,7 +24,7 @@ import javascalautils.Option;
  * @author Peter Nerg
  * @since 1.0
  */
-interface PropertySet {
+public interface PropertySet {
 
 	/**
 	 * Get the name of the property set
