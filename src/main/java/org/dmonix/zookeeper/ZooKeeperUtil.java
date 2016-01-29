@@ -38,7 +38,11 @@ import javascalautils.Unit;
  * @since 1.0
  */
 final class ZooKeeperUtil {
-
+	/**
+	 * 	Inhibitive constructor.
+	 */
+	private ZooKeeperUtil() {
+	}
 	/**
 	 * Recursively deletes a path. <br>
 	 * The method will recursively list and delete all child nodes to the provided path. Will fail if ZK is down.

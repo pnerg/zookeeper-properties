@@ -27,16 +27,17 @@ import org.junit.Before;
 import org.junit.Test;
 
 import javascalautils.Try;
+import junitextensions.ReflectionAssert;
 import zookeeperjunit.CloseableZooKeeper;
 import zookeeperjunit.ZKFactory;
 import zookeeperjunit.ZKInstance;
 import zookeeperjunit.ZooKeeperAssert;
 
 /**
+ * Test the class {@link ZooKeeperUtil}.
  * @author Peter Nerg
- *
  */
-public class TestZooKeeperUtil extends BaseAssert implements ZooKeeperAssert {
+public class TestZooKeeperUtil extends BaseAssert implements ZooKeeperAssert, ReflectionAssert {
 
 	private static ZKInstance instance = ZKFactory.apply().create();
 	
@@ -61,6 +62,11 @@ public class TestZooKeeperUtil extends BaseAssert implements ZooKeeperAssert {
 	public void stopZooKeeper() throws TimeoutException, Throwable {
 		Option(zooKeeper).forEach(CloseableZooKeeper::close);
 		instance.destroy().result(duration);
+	}
+	
+	@Test
+	public void testConstructor() {
+		assertPrivateConstructor(ZooKeeperUtil.class);
 	}
 
 	/* (non-Javadoc)
