@@ -17,7 +17,9 @@ package org.dmonix.zookeeper;
 
 import java.util.Set;
 
+import javascalautils.None;
 import javascalautils.Option;
+import javascalautils.Some;
 
 /**
  * Represents a single property (key/value) set.
@@ -36,7 +38,7 @@ public interface PropertySet {
 	/**
 	 * Get the named property.
 	 * @param name The name of the property
-	 * @return If exists then Some containing the value, else None.
+	 * @return If exists then {@link Some} containing the value, else {@link None}
 	 * @since 1.0
 	 */
 	Option<String> property(String name);
@@ -52,7 +54,7 @@ public interface PropertySet {
 	 * Sets a property in the set
 	 * @param name The name of the property
 	 * @param value The value of the property
-	 * @return Some with previous value if such existed else None
+	 * @return {@link Some} with previous value if such existed else {@link None}
 	 * @since 1.0
 	 */
 	Option<String> set(String name, String value);
