@@ -134,6 +134,18 @@ public class TestZooKeeperStorage extends BaseAssert implements ZooKeeperAssert,
 	public void delete_nonExisting() {
 		assertSuccess(storage.delete("no-such-set"));
 	}
+
+	@Test
+	public void delete() {
+		storePropertySet();
+		assertSuccess(storage.delete(propertySetName));
+		
+		//assert the paths exist as expected
+		try(CloseableZooKeeper zk = connection()) {
+			assertSuccess(false, zk.exists(propertySetPath+"/port"));
+		}
+		
+	}
 	
 	@Test
 	public void finalize_t() throws Throwable {
