@@ -18,8 +18,6 @@ package org.dmonix.zookeeper;
 import java.util.Set;
 
 import javascalautils.Option;
-import javascalautils.Try;
-import javascalautils.Unit;
 
 /**
  * Represents a single property (key/value) set.
@@ -54,17 +52,15 @@ interface PropertySet {
 	 * Sets a property in the set
 	 * @param name The name of the property
 	 * @param value The value of the property
-	 * @return The Some with previous value if such existed else None
+	 * @return Some with previous value if such existed else None
 	 * @since 1.0
 	 */
 	Option<String> set(String name, String value);
 	
-	Try<Unit> store();
-	
 	/**
-	 * 
-	 * @param name
-	 * @return
+	 * Creates an instance of the property set.
+	 * @param name The name of the property set
+	 * @return The property set
 	 * @since 1.0
 	 */
 	static PropertySet apply(String name) {

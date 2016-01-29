@@ -23,22 +23,26 @@ import java.util.Map;
 import java.util.Set;
 
 import javascalautils.Option;
-import javascalautils.Try;
-import javascalautils.Unit;
+
+
 /**
+ * The implementation of the property set.
+ * 
  * @author Peter Nerg
- *
+ * @since 1.0
  */
 final class PropertySetImpl implements PropertySet {
 
 	private final String name;
 	private final Map<String, String> properties = new HashMap<>();
-	
+
 	PropertySetImpl(String name) {
 		this.name = name;
 	}
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.dmonix.zookeeper.PropertySet#name()
 	 */
 	@Override
@@ -46,7 +50,9 @@ final class PropertySetImpl implements PropertySet {
 		return name;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.dmonix.zookeeper.PropertySet#property(java.lang.String)
 	 */
 	@Override
@@ -54,30 +60,23 @@ final class PropertySetImpl implements PropertySet {
 		return Option(properties.get(name));
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.dmonix.zookeeper.PropertySet#properties()
 	 */
 	@Override
 	public Set<String> properties() {
 		return new HashSet<>(properties.keySet());
 	}
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.dmonix.zookeeper.PropertySet#set(java.lang.String, java.lang.String)
 	 */
 	@Override
 	public Option<String> set(String name, String value) {
 		return Option(properties.put(name, value));
 	}
-	
-	/* (non-Javadoc)
-	 * @see org.dmonix.zookeeper.PropertySet#store()
-	 */
-	@Override
-	public Try<Unit> store() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException();
-	}
-	
-
 }
