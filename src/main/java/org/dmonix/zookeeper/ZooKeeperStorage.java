@@ -18,7 +18,6 @@ package org.dmonix.zookeeper;
 import static javascalautils.OptionCompanion.None;
 import static javascalautils.OptionCompanion.Option;
 import static javascalautils.TryCompanion.Try;
-
 import static org.dmonix.zookeeper.ZooKeeperUtil.children;
 import static org.dmonix.zookeeper.ZooKeeperUtil.createRecursive;
 import static org.dmonix.zookeeper.ZooKeeperUtil.deleteRecursive;
@@ -76,54 +75,19 @@ class ZooKeeperStorage implements PropertiesStorage {
 	 */
 	@Override
 	public Try<Option<PropertySet>> get(String name) {
-		
-		 Try<PropertySet> flatMap = Try(() -> zooKeeper.get()).flatMap(zk -> {
-			String path = propertySetPath(name);
-			return children(zk, propertySetPath(name)).
-				flatMap(children -> {
-					return Try(() -> {
-						PropertySet propertySet = PropertySet.apply(name);
-						for (String child : children) {
-							propertySet.set(child, getData(zk, path+"/"+child));
-						}
-						return propertySet;
-					});
+		return connection().flatMap(zk -> {
+			return Try(() -> {
+				String path = propertySetPath(name);
+				PropertySet propertySet = null;
+				if (exists(zk, path)) {
+					propertySet = PropertySet.apply(name);
+					for (String child : children(zk, path).get()) {
+						propertySet.set(child, getData(zk, path + "/" + child));
+					}
+				} 
+				return Option(propertySet);
 			});
 		});
-			
-		return Try(() -> {
-			ZooKeeper zk = zooKeeper.get();
-			String path = propertySetPath(name);
-			children(zk, propertySetPath(name)).
-				flatMap(children -> {
-					return Try(() -> {
-						PropertySet propertySet = PropertySet.apply(name);
-						for (String child : children) {
-							propertySet.set(child, getData(zk, path+"/"+child));
-						}
-						return propertySet;
-					});
-			});
-			
-		return null;
-		});		
-//			children.failed().filter
-//			// not so functional but as match/case constructs don't exist in Java this will have to do..:(
-//			if (children.isEmpty()) {
-//				return None();
-//			}
-//
-//			PropertySet propertySet = PropertySet.apply(name);
-//			// orNull will never happen as we know the Option to be Some(...)
-//			for (String child : children.orNull()) {
-//				// getData may return null, hence the Option
-//				Option(zk.getData(propertySetPath(name) + "/" + child, null, null)).map(data -> new String(data)).forEach(value -> {
-//					propertySet.set(child, value);
-//				});
-//			}
-//
-//			return Option(propertySet);
-//		});
 	}
 
 	/*

@@ -23,7 +23,6 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import javascalautils.Option;
@@ -76,7 +75,6 @@ public class TestZooKeeperStorage extends BaseAssert implements ZooKeeperAssert,
 		return instance;
 	}
 
-	@Ignore("not fully implemented")
 	@Test
 	public void getPropertySet_nonSuchSet() {
 		Try<Option<PropertySet>> propertySet = storage.get("no-such-set");
@@ -84,7 +82,6 @@ public class TestZooKeeperStorage extends BaseAssert implements ZooKeeperAssert,
 		assertNone(propertySet.orNull()); //orNull will never happen, just to avoid exception mgmt
 	}
 	
-	@Ignore("not fully implemented")
 	@Test
 	public void getPropertySet() {
 		storePropertySet();
