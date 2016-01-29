@@ -29,7 +29,7 @@ import zookeeperjunit.ZKInstance;
  * Test the class {@link PropertiesStorageFactory}
  * @author Peter Nerg
  */
-public class TestZooKeeperStorageFactory extends BaseAssert implements TryAssert {
+public class TestPropertiesStorageFactory extends BaseAssert implements TryAssert {
 	private static ZKInstance instance = ZKFactory.apply().create();
 	
 //	private final AtomicLong counter = new AtomicLong(1);
