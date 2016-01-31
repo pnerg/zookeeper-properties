@@ -1,5 +1,5 @@
 /**
- *  Copyright 2015 Peter Nerg
+ *  Copyright 2016 Peter Nerg
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,30 +15,35 @@
  */
 package org.dmonix.zookeeper;
 
+import static javascalautils.TryCompanion.Try;
+
 import javascalautils.Try;
 
 /**
- * Factory for creating {@link PropertiesStorage} instances.
+ * The implementation of the factory
  * @author Peter Nerg
- * @since 1.0
  */
-public interface PropertiesStorageFactory {
+final class PropertiesStorageFactoryImpl implements PropertiesStorageFactory {
 
-	/**
-	 * Creates the factory instance.
-	 * @param connectString The connect string used to connect to ZooKeeper.
-	 * @return The factory instance
-	 * @since 1.0
-	 */
-	public static PropertiesStorageFactory apply(String connectString) {
-		return new PropertiesStorageFactoryImpl(connectString);
+	private final String connectString;
+	
+	private String rootPath = "/etc/property-sets";
+
+	PropertiesStorageFactoryImpl(String connectString) {
+		this.connectString = connectString;
 	}
-
+	
 	/**
 	 * Creates a properties storage instance.
 	 * @return The result of creating the instance
 	 * @since 1.0
 	 */
-	public Try<PropertiesStorage> create();
-
+	public Try<PropertiesStorage> create() {
+		return Try(() -> {
+			ZooKeeperStorage storage = new ZooKeeperStorage(connectString, rootPath);
+			storage.connect();
+			return storage;
+		});
+	}
+	
 }
