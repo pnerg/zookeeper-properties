@@ -30,15 +30,23 @@ public interface PropertiesStorageFactory {
 	 * @return The factory instance
 	 * @since 1.0
 	 */
-	public static PropertiesStorageFactory apply(String connectString) {
+	static PropertiesStorageFactory apply(String connectString) {
 		return new PropertiesStorageFactoryImpl(connectString);
 	}
 
+	/**
+	 * Provides the root path where to store all the property sets.
+	 * @param rootPath The root path
+	 * @return The factory instance
+	 * @since 1.1
+	 */
+	PropertiesStorageFactory withRootPath(String rootPath);
+	
 	/**
 	 * Creates a properties storage instance.
 	 * @return The result of creating the instance
 	 * @since 1.0
 	 */
-	public Try<PropertiesStorage> create();
+	Try<PropertiesStorage> create();
 
 }

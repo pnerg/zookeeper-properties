@@ -32,9 +32,6 @@ import zookeeperjunit.ZKInstance;
 public class TestPropertiesStorageFactory extends BaseAssert implements TryAssert {
 	private static ZKInstance instance = ZKFactory.apply().create();
 	
-//	private final AtomicLong counter = new AtomicLong(1);
-//	private final String rootPath = "/TestZooKeeperStorageFactory-"+counter.getAndIncrement();
-	
 	private final PropertiesStorageFactory factory = PropertiesStorageFactory.apply(instance.connectString().get());
 	
 	@BeforeClass
@@ -45,6 +42,11 @@ public class TestPropertiesStorageFactory extends BaseAssert implements TryAsser
 	@AfterClass
 	public static void stopZooKeeper() throws TimeoutException, Throwable {
 		instance.destroy().result(duration);
+	}
+	
+	@Test
+	public void withRootPath() {
+		assertNotNull(factory.withRootPath("/some-other-path"));
 	}
 	
 	@Test

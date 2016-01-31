@@ -33,6 +33,15 @@ final class PropertiesStorageFactoryImpl implements PropertiesStorageFactory {
 		this.connectString = connectString;
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.dmonix.zookeeper.PropertiesStorageFactory#withRootPath(java.lang.String)
+	 */
+	@Override
+	public PropertiesStorageFactory withRootPath(String rootPath) {
+		this.rootPath = rootPath; 
+		return this;
+	}
+	
 	/**
 	 * Creates a properties storage instance.
 	 * @return The result of creating the instance
