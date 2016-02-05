@@ -16,6 +16,7 @@
 package org.dmonix.zookeeper;
 
 import javascalautils.Try;
+import javascalautils.Validator;
 
 /**
  * Factory for creating {@link PropertiesStorage} instances.
@@ -31,7 +32,7 @@ public interface PropertiesStorageFactory {
 	 * @since 1.0
 	 */
 	static PropertiesStorageFactory apply(String connectString) {
-		return new PropertiesStorageFactoryImpl(connectString);
+		return new PropertiesStorageFactoryImpl(Validator.requireNonNull(connectString));
 	}
 
 	/**
