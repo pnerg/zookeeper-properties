@@ -17,6 +17,7 @@ package org.dmonix.zookeeper;
 
 import static javascalautils.OptionCompanion.Option;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -80,6 +81,13 @@ final class PropertySetImpl implements PropertySet {
 		return Option(properties.put(name, value));
 	}
 
+	/* (non-Javadoc)
+	 * @see org.dmonix.zookeeper.PropertySet#asMap()
+	 */
+	@Override
+	public Map<String, String> asMap() {
+		return Collections.unmodifiableMap(properties);
+	}
 	/**
 	 * Provides a meaningful string representation of the property set
 	 * @since 1.2

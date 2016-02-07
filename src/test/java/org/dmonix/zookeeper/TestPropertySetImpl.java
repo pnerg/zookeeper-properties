@@ -43,7 +43,7 @@ public class TestPropertySetImpl extends BaseAssert implements OptionAssert {
 	}
 
 	@Test
-	public void set_owerwriteExisting() {
+	public void set_overwriteExisting() {
 		set_nonExisting();
 		assertSome("new-value", propertySet.set("new-key", "overwritten-value"));
 		assertSome("overwritten-value", propertySet.property("new-key"));
@@ -61,8 +61,20 @@ public class TestPropertySetImpl extends BaseAssert implements OptionAssert {
 	}
 	
 	@Test
+	public void asMap_emptySet() {
+		assertTrue(propertySet.asMap().isEmpty());
+	}
+
+	@Test
+	public void asMap() {
+		set_nonExisting();
+		assertEquals(1, propertySet.asMap().size());
+		assertTrue(propertySet.asMap().containsKey("new-key"));
+	}
+	
+	@Test
 	public void t_toString() {
 		set_nonExisting();
-		System.out.println(propertySet.toString());
+		assertNotNull(propertySet.toString());
 	}
 }

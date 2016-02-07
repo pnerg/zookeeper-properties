@@ -1,5 +1,5 @@
 /**
- *  Copyright 2016 Peter Nerg
+ *  Copyright 201 6 Peter Nerg
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package org.dmonix.zookeeper;
 
+import java.util.Map;
 import java.util.Set;
 
 import javascalautils.None;
@@ -58,6 +59,13 @@ public interface PropertySet {
 	 * @since 1.0
 	 */
 	Option<String> set(String name, String value);
+	
+	/**
+	 * Provides a map containing all properties (key,value).
+	 * @return All properties, empty if no properties
+	 * @since 1.2
+	 */
+	Map<String, String> asMap();
 	
 	/**
 	 * Creates an instance of the property set.
