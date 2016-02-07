@@ -6,7 +6,7 @@
 	<groupId>org.dmonix.zookeeper</groupId>
 	<artifactId>zookeeper-properties</artifactId>
 	<name>ZooKeeper Properties</name>
-	<version>1.2-SNAPSHOT</version>
+	<version>1.2</version>
 	<packaging>jar</packaging>
 	<description>Java implementation of some of the core utilities from Scala</description>
 	<url>https://github.com/pnerg/zookeeper-properties</url>
