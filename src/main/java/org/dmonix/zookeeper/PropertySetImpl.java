@@ -79,4 +79,17 @@ final class PropertySetImpl implements PropertySet {
 	public Option<String> set(String name, String value) {
 		return Option(properties.put(name, value));
 	}
+
+	/**
+	 * Provides a meaningful string representation of the property set
+	 * @since 1.2
+	 */
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append(name).append("{");
+		properties.forEach((k,v) -> sb.append(k).append(":").append(v).append(","));
+		sb.append("}");
+		return sb.toString();
+	}
 }

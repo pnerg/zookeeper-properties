@@ -24,11 +24,11 @@ import junitextensions.OptionAssert;
  * @author Peter Nerg
  */
 public class TestPropertySetImpl extends BaseAssert implements OptionAssert {
-	private final PropertySetImpl propertySet = new PropertySetImpl(TestPropertySetImpl.class.getName());
+	private final PropertySetImpl propertySet = new PropertySetImpl(TestPropertySetImpl.class.getSimpleName());
 	
 	@Test
 	public void name() {
-		assertEquals(TestPropertySetImpl.class.getName(), propertySet.name());
+		assertEquals(TestPropertySetImpl.class.getSimpleName(), propertySet.name());
 	}
 	
 	@Test
@@ -58,5 +58,11 @@ public class TestPropertySetImpl extends BaseAssert implements OptionAssert {
 	public void properties_nonEmpty() {
 		set_nonExisting();
 		assertEquals(1, propertySet.properties().size());
+	}
+	
+	@Test
+	public void t_toString() {
+		set_nonExisting();
+		System.out.println(propertySet.toString());
 	}
 }
