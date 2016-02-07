@@ -72,4 +72,10 @@ public interface PropertiesStorage extends Closeable {
 	 */
 	Try<List<String>> propertySets();
 	
+	/**
+	 * Overrides the {@link Closeable#close()} method by not throwing an exception
+	 * @since 1.3
+	 */
+	@Override
+	void close();
 }
