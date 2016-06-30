@@ -35,10 +35,10 @@ Now assuming we got a _Successful_ response containing a _PropertiesStorage_ ins
 ### Store property set
 ```java
 PropertiesStorage propertiesStorage = ...
-PropertySet set = PropertySet.apply("example-app");
-set.set("db.host", "some-host");
-set.set("user.name", "Peter");
-Try<Unit> result = propertiesStorage.store(set);
+PropertySet ps = PropertySet.apply("example-app");
+ps.set("db.host", "some-host");
+ps.set("user.name", "Peter");
+Try<Unit> result = propertiesStorage.store(ps);
 ```
 
 ### List property set names
