@@ -12,7 +12,7 @@ This library provides a simple to use to read properties for an application from
 
 ## Data model
 The data model is simple and straightforward.  
-There is support for multiple property sets, e.g. each applicaion/service may have its own specific set of properties.  
+There is support for multiple property sets, e.g. each application/service may have its own specific set of properties.  
 Each property set is stored in its own path under which the name/value of each property is stored.  
 The example below illustrates two separate property sets _global_ and _service-a_
 ```
